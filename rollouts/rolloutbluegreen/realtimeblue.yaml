@@ -73,12 +73,15 @@ spec:
     blueGreen:
       activeService: realtimeapp-active
       previewService: realtimeapp-preview
-      prePromotionAnalysis:
-        templates:
-        - templateName: realtime-analysis
-        args:
-        - name: service-name
-          value: realtimeapp-preview.default.svc.cluster.local
+      trafficRouting:
+        nginx:
+          stableIngress: realtimeapp-active
+      # prePromotionAnalysis:
+      #   templates:
+      #   - templateName: realtime-analysis
+      #   args:
+      #   - name: service-name
+      #     value: realtimeapp-preview.default.svc.cluster.local
 ---
 apiVersion: v1
 kind: Service
@@ -105,27 +108,27 @@ spec:
     targetPort: 8080
   selector:
     app: realtime
----
-apiVersion: argoproj.io/v1alpha1
-kind: AnalysisTemplate
-metadata:
-  name: realtime-analysis
-spec:
-  args:
-  - name: service-name
-  metrics:
-  - name: test-realtime
-    provider:
-      job:
-        backoffLimit: 1
-        spec:
-          template:
-            spec:
-              containers:
-              - name: curl
-                image: curlimages/curl:7.69.1
-                command: ['curl',  '{{args.service-name}}']
-              restartPolicy: Never
+# ---
+# apiVersion: argoproj.io/v1alpha1
+# kind: AnalysisTemplate
+# metadata:
+#   name: realtime-analysis
+# spec:
+#   args:
+#   - name: service-name
+#   metrics:
+#   - name: test-realtime
+#     provider:
+#       job:
+#         backoffLimit: 1
+#         spec:
+#           template:
+#             spec:
+#               containers:
+#               - name: curl
+#                 image: curlimages/curl:7.69.1
+#                 command: ['curl',  '{{args.service-name}}']
+#               restartPolicy: Never
 ---
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
