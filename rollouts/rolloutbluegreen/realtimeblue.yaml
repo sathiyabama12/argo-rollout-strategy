@@ -73,9 +73,6 @@ spec:
     blueGreen:
       activeService: realtimeapp-active
       previewService: realtimeapp-preview
-      trafficRouting:
-        nginx:
-          stableIngress: realtimeapp-ingress
 ---
 apiVersion: v1
 kind: Service
@@ -107,10 +104,6 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: realtimeapp-ingress
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/affinity: cookie
-    nginx.ingress.kubernetes.io/affinity-mode: persistent
 spec:
   backend:
     serviceName: realtimeapp-active
