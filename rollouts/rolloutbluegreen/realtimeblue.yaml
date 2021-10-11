@@ -56,7 +56,7 @@ spec:
     spec:
       containers:
       - name: realtimeapp
-        image: gbaeke/fluxapp:1.0.0
+        image: gbaeke/fluxapp:1.0.2
         env:
         - name: REDISHOST
           value: "redisapp:6379"
@@ -73,9 +73,9 @@ spec:
     blueGreen:
       activeService: realtimeapp-active
       previewService: realtimeapp-preview
-#       trafficRouting:
-#         nginx:
-#           stableIngress: realtimeapp-ingress
+      trafficRouting:
+        nginx:
+          stableIngress: realtimeapp-ingress
 ---
 apiVersion: v1
 kind: Service
@@ -103,20 +103,15 @@ spec:
   selector:
     app: realtime
 ---
-# apiVersion: networking.k8s.io/v1beta1
-# kind: Ingress
-# metadata:
-#   name: realtimeapp-ingress
-#   annotations:
-#     kubernetes.io/ingress.class: nginx
-#     nginx.ingress.kubernetes.io/affinity: cookie
-#     nginx.ingress.kubernetes.io/affinity-mode: persistent
-# spec:
-#   rules:
-#   - host: real.baeke.info
-#     http:
-#       paths:
-#       - path: /
-#         backend:
-#           serviceName: realtimeapp-active
-#           servicePort: 80
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: realtimeapp-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/affinity-mode: persistent
+spec:
+  backend:
+    serviceName: realtimeapp-active
+    servicePort: 80
