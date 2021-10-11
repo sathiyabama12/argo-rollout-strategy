@@ -73,12 +73,9 @@ spec:
     blueGreen:
       activeService: realtimeapp-active
       previewService: realtimeapp-preview
-      prePromotionAnalysis:
-        templates:
-        - templateName: realtime-analysis
-        args:
-        - name: service-name
-          value: realtimeapp-active.default.svc.cluster.local
+#       trafficRouting:
+#         nginx:
+#           stableIngress: realtimeapp-ingress
 ---
 apiVersion: v1
 kind: Service
@@ -106,41 +103,20 @@ spec:
   selector:
     app: realtime
 ---
-apiVersion: argoproj.io/v1alpha1
-kind: AnalysisTemplate
-metadata:
-  name: realtime-analysis
-spec:
-  args:
-  - name: service-name
-  metrics:
-  - name: test-realtime
-    provider:
-      job:
-        backoffLimit: 1
-        spec:
-          template:
-            spec:
-              containers:
-              - name: curl
-                image: curlimages/curl:7.69.1
-                command: ['curl',  '{{args.service-name}}']
-              restartPolicy: Never
----
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
-  name: realtimeapp-ingress
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/affinity: cookie
-    nginx.ingress.kubernetes.io/affinity-mode: persistent
-spec:
-  rules:
-  - host: real.baeke.info
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: realtimeapp-active
-          servicePort: 80
+# apiVersion: networking.k8s.io/v1beta1
+# kind: Ingress
+# metadata:
+#   name: realtimeapp-ingress
+#   annotations:
+#     kubernetes.io/ingress.class: nginx
+#     nginx.ingress.kubernetes.io/affinity: cookie
+#     nginx.ingress.kubernetes.io/affinity-mode: persistent
+# spec:
+#   rules:
+#   - host: real.baeke.info
+#     http:
+#       paths:
+#       - path: /
+#         backend:
+#           serviceName: realtimeapp-active
+#           servicePort: 80
