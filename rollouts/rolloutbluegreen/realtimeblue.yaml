@@ -106,5 +106,5 @@ metadata:
   name: realtimeapp-ingress
 spec:
   backend:
-    serviceName: realtimeapp-active
+    serviceName: realtimeapp-preview
     servicePort: 80
