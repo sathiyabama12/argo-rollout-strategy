@@ -44,7 +44,7 @@ spec:
   selector:
     matchLabels:
       app: realtime
-  replicas: 3
+  replicas: 5
   template:
     metadata:
       labels:
@@ -52,21 +52,31 @@ spec:
     spec:
       containers:
       - name: realtimeapp
-        image: nginx:1.21
+        image: gbaeke/fluxapp:1.0.0
         env:
         - name: REDISHOST
           value: "redisapp:6379"
+        resources:
+          requests:
+            cpu: 25m
+            memory: 50Mi
+          limits:
+            cpu: 150m
+            memory: 150Mi
         ports:
         - containerPort: 8080
   strategy:
     canary:
       stableService: realtimeapp-stable
       canaryService: realtimeapp-canary
-      #trafficRouting:
-        #nginx:
-          #stableIngress: realtimeapp-ingress
+      # trafficRouting:
+      #   nginx:
+      #     stableIngress: realtimeapp-ingress
       steps:
-      - setWeight: 50
+      - setWeight: 20
+      - pause: 
+          duration: "20s"
+      - setWeight: 60
       - pause: {}
 ---
 apiVersion: v1
@@ -94,19 +104,21 @@ spec:
     targetPort: 8080
   selector:
     app: realtime
----
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
-  name: realtimeapp-ingress
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/affinity: cookie
-    nginx.ingress.kubernetes.io/affinity-mode: persistent
-spec:
-  rules:
-    http:
-      paths:
-        backend:
-          serviceName: realtimeapp-stable
-          servicePort: 80
+# ---
+# apiVersion: networking.k8s.io/v1beta1
+# kind: Ingress
+# metadata:
+#   name: realtimeapp-ingress
+#   annotations:
+#     kubernetes.io/ingress.class: nginx
+#     nginx.ingress.kubernetes.io/affinity: cookie
+#     nginx.ingress.kubernetes.io/affinity-mode: persistent
+# spec:
+#   rules:
+#   - host: real.baeke.info
+#     http:
+#       paths:
+#       - path: /
+#         backend:
+#           serviceName: realtimeapp-stable
+#           servicePort: 80
