@@ -1,110 +1,76 @@
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: redisapp
-  labels:
-    app: redis
-spec:
-  selector:
-    matchLabels:
-      app: redis
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: redis
-    spec:
-      containers:
-      - name: redis
-        image: redis:4-32bit
-        resources:
-          requests:
-            cpu: 200m
-            memory: 100Mi
-        ports:
-        - containerPort: 6379
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: redisapp
-  labels:
-    app: redis
-spec:
-  ports:
-  - port: 6379
-    targetPort: 6379
-  selector:
-    app: redis
----
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
-  name: realtimeapp
-  labels:
-    app: realtime
+  name: rollout-bluegreen
 spec:
+  replicas: 2
+  revisionHistoryLimit: 2
   selector:
     matchLabels:
-      app: realtime
-  replicas: 2
+      app: rollout-bluegreen
   template:
     metadata:
       labels:
-        app: realtime
+        app: rollout-bluegreen
     spec:
       containers:
-      - name: realtimeapp
-        image: gbaeke/fluxapp:1.0.2
-        env:
-        - name: REDISHOST
-          value: "redisapp:6379"
-        resources:
-          requests:
-            cpu: 25m
-            memory: 50Mi
-          limits:
-            cpu: 150m
-            memory: 150Mi
+      - name: rollouts-demo
+        image: nginx:1.21      # nginxdemos/hello:0.2, hello:plain-text
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
   strategy:
-    blueGreen:
-      activeService: realtimeapp-active
-      previewService: realtimeapp-preview
+    blueGreen: 
+      activeService: rollout-bluegreen-active
+      previewService: rollout-bluegreen-preview
+      # trafficRouting:
+      #   nginx:
+      #     stableIngress: rollout-ingress
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: realtimeapp-active
+  name: rollout-bluegreen-active
   labels:
-    app: realtime
+    app: rollout-bluegreen
 spec:
   ports:
   - port: 80
     targetPort: 8080
   selector:
-    app: realtime
+    app: rollout-bluegreen
+  type: LoadBalancer
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: realtimeapp-preview
+  name: rollout-bluegreen-preview
   labels:
-    app: realtime
+    app: rollout-bluegreen
 spec:
   ports:
   - port: 80
     targetPort: 8080
   selector:
-    app: realtime
+    app: rollout-bluegreen
+  type: LoadBalancer
 ---
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: realtimeapp-ingress
+  name: rollout-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
 spec:
-  backend:
-    serviceName: realtimeapp-preview
-    servicePort: 80
+  rules:
+  -  http:
+      paths:
+      - path: /
+        backend:
+          serviceName: rollout-bluegreen-active
+          servicePort: 80
+      - path: /
+        backend:
+          serviceName: rollout-bluegreen-preview
+          servicePort: 80
+          
