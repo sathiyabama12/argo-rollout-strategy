@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: rollouts-demo
-        image: nginx      # nginxdemos/hello:0.2, hello:plain-text
+        image: nginxdemos/hello:0.2      # nginxdemos/hello:0.2, hello:plain-text
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
