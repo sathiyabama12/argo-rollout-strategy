@@ -122,7 +122,7 @@ spec:
         backend:
           serviceName: realtimeapp-stable
           servicePort: 80
-#       - path: /
-#         backend:
-#           serviceName: realtimeapp-canary
-#           servicePort: 80
+      - path: /
+        backend:
+          serviceName: realtimeapp-canary
+          servicePort: 80
