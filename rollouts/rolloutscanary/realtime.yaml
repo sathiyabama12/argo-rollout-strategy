@@ -119,9 +119,9 @@ spec:
     http:
       paths:
       - path: /
-        backend:
-          serviceName: realtimeapp-stable
-          servicePort: 80
+#         backend:
+#           serviceName: realtimeapp-stable
+#           servicePort: 80
       - path: /
         backend:
           serviceName: realtimeapp-canary
