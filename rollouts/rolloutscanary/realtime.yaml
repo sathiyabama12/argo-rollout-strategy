@@ -68,7 +68,7 @@ spec:
   strategy:
     canary:
       stableService: realtimeapp-stable
-      # canaryService: realtimeapp-canary
+      canaryService: realtimeapp-canary
       trafficRouting:
         nginx:
           stableIngress: gateway
@@ -91,19 +91,19 @@ spec:
     targetPort: 8080
   selector:
     app: realtime
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: realtimeapp-canary
-#   labels:
-#     app: realtime
-# spec:
-#   ports:
-#   - port: 80
-#     targetPort: 8080
-#   selector:
-#     app: realtime
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: realtimeapp-canary
+  labels:
+    app: realtime
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: realtime
 ---
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
@@ -122,7 +122,7 @@ spec:
         backend:
           serviceName: realtimeapp-stable
           servicePort: 80
-      # - path: /
-      #   backend:
-      #     serviceName: realtimeapp-canary
-      #     servicePort: 80
+      - path: /
+        backend:
+          serviceName: realtimeapp-canary
+          servicePort: 80
