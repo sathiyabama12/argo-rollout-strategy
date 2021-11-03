@@ -70,7 +70,7 @@ spec:
       stableService: realtimeapp-stable
       canaryService: realtimeapp-canary
       trafficRouting:
-        nginx:
+        istio:
           stableIngress: gateway
       steps:
       - setWeight: 20
@@ -118,11 +118,11 @@ spec:
   - host: real.baeke.info
     http:
       paths:
-#       - path: /
-#         backend:
-#           serviceName: realtimeapp-stable
-#           servicePort: 80
       - path: /
         backend:
-          serviceName: realtimeapp-canary
+          serviceName: realtimeapp-stable
           servicePort: 80
+#       - path: /
+#         backend:
+#           serviceName: realtimeapp-canary
+#           servicePort: 80
