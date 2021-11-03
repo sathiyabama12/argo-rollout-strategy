@@ -71,7 +71,7 @@ spec:
       canaryService: realtimeapp-canary
       trafficRouting:
         nginx:
-          stableIngress: realtimeapp-ingress
+          stableIngress: gateway
       steps:
       - setWeight: 20
       - pause: 
@@ -108,11 +108,11 @@ spec:
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: realtimeapp-ingress
+  name: gateway
   annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/affinity: cookie
-    nginx.ingress.kubernetes.io/affinity-mode: persistent
+    kubernetes.io/ingress.class: "istio"
+#     nginx.ingress.kubernetes.io/affinity: cookie
+#     nginx.ingress.kubernetes.io/affinity-mode: persistent
 spec:
   rules:
   - host: real.baeke.info
