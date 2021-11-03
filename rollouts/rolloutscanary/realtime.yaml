@@ -44,7 +44,7 @@ spec:
   selector:
     matchLabels:
       app: realtime
-  replicas: 4
+  replicas: 5
   template:
     metadata:
       labels:
