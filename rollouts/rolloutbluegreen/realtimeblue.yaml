@@ -21,12 +21,12 @@ spec:
           image: gcr.io/fleet-resolver-237016/spring-boot-example:v1
           ports:
             - containerPort: 8080
-          readinessProbe:
-            httpGet:
-              path: /lazy
-              port: 8080
-            initialDelaySeconds: 5
-            periodSeconds: 5
+#           readinessProbe:
+#             httpGet:
+#               path: /lazy
+#               port: 8080
+#             initialDelaySeconds: 5
+#             periodSeconds: 5
   strategy:
     canary:
 #       stableService: spring-boot-example
