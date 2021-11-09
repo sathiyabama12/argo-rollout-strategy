@@ -29,8 +29,8 @@ spec:
             periodSeconds: 5
   strategy:
     canary:
-      stableService: spring-boot-example
-#       canaryService: realtimeapp-stable
+#       stableService: spring-boot-example
+      canaryService: spring-boot-example
       trafficRouting:
         istio:
            virtualService: 
