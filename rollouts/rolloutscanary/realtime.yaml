@@ -67,8 +67,8 @@ spec:
         - containerPort: 8080
   strategy:
     canary:
-      stableService: realtimeapp-stable
-      canaryService: realtimeapp-canary
+      stableService: realtimeapp-canary
+      canaryService: realtimeapp-stable
       trafficRouting:
         nginx:
           stableIngress: gateway
