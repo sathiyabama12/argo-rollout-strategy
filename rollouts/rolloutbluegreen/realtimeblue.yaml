@@ -48,7 +48,6 @@ metadata:
   name: spring-boot-example
   labels:
     name: spring-boot-example
-    version: "v1"
 spec:
   ports:
     - port: 8080
@@ -56,7 +55,6 @@ spec:
       protocol: TCP
   selector:
     app: spring-boot-example
-    version: "v1"
   type: LoadBalancer
 ---
 apiVersion: networking.istio.io/v1alpha3
