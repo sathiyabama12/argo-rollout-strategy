@@ -2,76 +2,94 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
-  name: rollout-bluegreen
+  name: spring-boot-example-v1
+  labels:
+    app: spring-boot-example
 spec:
-  replicas: 2
-  revisionHistoryLimit: 2
   selector:
     matchLabels:
-      app: rollout-bluegreen
+      app: spring-boot-example
+  replicas: 4
   template:
     metadata:
       labels:
-        app: rollout-bluegreen
+        app: spring-boot-example
+        version: "v1"
     spec:
       containers:
-      - name: rollouts-demo
-        image: nginxdemos/hello:0.2      # nginxdemos/hello:0.2, hello:plain-text
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 8080
+        - name: spring-boot-example
+          image: gcr.io/fleet-resolver-237016/spring-boot-example:v1
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /lazy
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
   strategy:
-    blueGreen: 
-      activeService: rollout-bluegreen-active
-      previewService: rollout-bluegreen-preview
-      # trafficRouting:
-      #   nginx:
-      #     stableIngress: rollout-ingress
+    canary:
+      stableService: realtimeapp-canary
+      canaryService: realtimeapp-stable
+      trafficRouting:
+        istio:
+           virtualService: 
+             name: realapp
+      steps:
+      - setWeight: 20
+      - pause: 
+          duration: "20s"
+      - setWeight: 50
+      - pause: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: rollout-bluegreen-active
+  name: spring-boot-example
   labels:
-    app: rollout-bluegreen
+    name: spring-boot-example
+    version: "v1"
 spec:
   ports:
-  - port: 80
-    targetPort: 8080
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
   selector:
-    app: rollout-bluegreen
+    app: spring-boot-example
+    version: "v1"
   type: LoadBalancer
 ---
-apiVersion: v1
-kind: Service
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
 metadata:
-  name: rollout-bluegreen-preview
-  labels:
-    app: rollout-bluegreen
+  name: realapp-gateway
 spec:
-  ports:
-  - port: 80
-    targetPort: 8080
   selector:
-    app: rollout-bluegreen
-  type: LoadBalancer
-# ---
-# apiVersion: networking.k8s.io/v1beta1
-# kind: Ingress
-# metadata:
-#   name: rollout-ingress
-#   annotations:
-#     kubernetes.io/ingress.class: nginx
-# spec:
-#   rules:
-#   -  http:
-#       paths:
-#       - path: /
-#         backend:
-#           serviceName: rollout-bluegreen-active
-#           servicePort: 80
-#       - path: /
-#         backend:
-#           serviceName: rollout-bluegreen-preview
-#           servicePort: 80
-          
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: realapp
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - realapp-gateway
+  http:
+  - match:
+    - uri:
+        exact: /lazy/*
+    route:
+    - destination:
+        host: spring-boot-example
+        port:
+          number: 8080
+
