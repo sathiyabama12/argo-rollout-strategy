@@ -15,7 +15,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: nodejs-canary
+  name: nodejs-blue
   labels:
     app: nodejs
 spec:
@@ -33,14 +33,14 @@ metadata:
     version: v1
 spec:
   strategy:
-    canary:
+    bluegreen:
       steps:
       - setWeight: 20
       - pause:
           duration: "20s"
       - setWeight: 50
       - pause: {}
-      canaryService: nodejs-canary
+      blueService: nodejs-blue
       stableService: nodejs
       trafficRouting:
         istio:
@@ -98,5 +98,5 @@ spec:
         host: nodejs
       weight: 100
     - destination:
-        host: nodejs-canary
+        host: nodejs-blue
       weight: 0
