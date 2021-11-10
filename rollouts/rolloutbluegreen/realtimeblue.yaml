@@ -33,15 +33,15 @@ metadata:
     version: v1
 spec:
   strategy:
-    bluegreen:
-      steps:
-      - setWeight: 20
-      - pause:
-          duration: "20s"
-      - setWeight: 50
-      - pause: {}
-      blueService: nodejs-blue
-      stableService: nodejs
+    blueGreen:
+#       steps:
+#       - setWeight: 20
+#       - pause:
+#           duration: "20s"
+#       - setWeight: 50
+#       - pause: {}
+      previewService: nodejs-blue
+      activeService: nodejs
       trafficRouting:
         istio:
           virtualService: 
